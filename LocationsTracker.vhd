@@ -5,7 +5,6 @@ use IEEE.numeric_std.all;
 entity LocationsTracker is
 	port(	clk:	in std_logic;
 		reset:	in std_logic;
-		read:	out std_logic;
 		data_in:	in std_logic_vector (7 downto 0); --out from uatr
 		data_ready:	in std_logic;
 		MazePoint:	in std_logic;
@@ -41,7 +40,6 @@ begin
 	begin
 		case state is
 			when DataCollect =>
-				read <= '1' ;
 				MazeTurn <= "000";
 				if (data_ready = '1') then
 					data1 <= data_in;
@@ -61,7 +59,6 @@ begin
 				new_state <=  TurnCalc;
 		
 			when TurnCalc =>
-				read <= '0';
 				old_orient <= orient;
 				if (MazePoint = '1') then
 					if (unsigned(old_loc) = to_unsigned(0,24)) then
