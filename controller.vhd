@@ -46,6 +46,7 @@ begin
 	
 	process(state,count_in,sensor_l,sensor_m,sensor_r)
 	begin
+		new_checkpoint <= checkpoint;
 		case state is
 			when reset_state =>
 				MazePoint <= '0';
@@ -164,11 +165,11 @@ begin
 				motor_r_reset <= '0';
 				motor_r_direction <= '0';
 				MazePoint <= '1';
-				if (unsigned(count_in) = to_unsigned(1000000,20)) then
-					if (sensor_l='1') or (sensor_m='1') or (sensor_r='1') then
-						new_state <= reset_state;
-					end if;
+				--if (unsigned(count_in) = to_unsigned(1000000,20)) then
+				if (sensor_l='0') then --or (sensor_m='1') or (sensor_r='1') then
+					new_state <= reset_state;
 				end if;
+				--end if;
 			when Right90 =>
 				count_reset <= '0';
 				motor_l_reset <= '0';
@@ -176,11 +177,11 @@ begin
 				motor_r_reset <= '0';
 				motor_r_direction <= '1';
 				MazePoint <= '1';
-				if (unsigned(count_in) = to_unsigned(1000000,20)) then
-					if (sensor_l='1') or (sensor_m='1') or (sensor_r='1') then
-						new_state <= reset_state;
-					end if;
+				--if (unsigned(count_in) = to_unsigned(1000000,20)) then
+				if (sensor_r='0') then --(sensor_l='1') or (sensor_m='1') or 
+					new_state <= reset_state;
 				end if;
+				--end if;
 			--when Turn180 =>
 		end case;
 	end process;
