@@ -27,16 +27,19 @@ entity controller is
 end entity controller;
 
 Architecture behavioural of controller is
-	type controll_state is (reset_state, Sleft, Gleft, forward, Gright, Sright, MazeCheck, LilForward, Left90, Right90); --Turn180);
+	type controll_state is (reset_state, Sleft, Gleft, forward, Gright, Sright, LilForward, Left90, Right90); --Turn180);
 	signal state, new_state: controll_state;
+	signal checkpoint, new_checkpoint: std_logic;
 begin
 	process(clk)
 	begin
 		if (rising_edge(clk)) then
 			if (reset='1') then
 				state <= reset_state;
+				checkpoint <= new_checkpoint;
 			else	
 				state <= new_state;
+				CheckPoint <= '0';
 			end if;
 		end if;
 	end process;
@@ -60,7 +63,7 @@ begin
 				elsif (sensor_l='1') and (sensor_m='1') and (sensor_r='0') then
 					new_state <= Sright;
 				elsif (sensor_l='0') and (sensor_m='0') and (sensor_r='0') then
-					new_state <= MazeCheck;
+					new_state <= LilForward;
 				else
 					new_state <= forward;
 				end if;
@@ -114,22 +117,22 @@ begin
 				if (unsigned(count_in) = to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
-			when MazeCheck =>
-				count_reset <= '1';
-				motor_l_reset <= '1';
-				motor_l_direction <= '0';
-				motor_r_reset <= '1';
-				motor_r_direction <= '0';
-				MazePoint <= '1';
+			--when MazeCheck =>
+				--count_reset <= '1';
+				--motor_l_reset <= '1';
+				--motor_l_direction <= '0';
+				--motor_r_reset <= '1';
+				--motor_r_direction <= '0';
+				--MazePoint <= '1';
 				--if (MazeTurn = "000") then
 					--new_state <= MazeCheck;
-				if (MazeTurn = "010") then --straight
-					new_state <= forward;
-				elsif (MazeTurn = "100") or (MazeTurn = "001") or (MazeTurn = "111") then --left right 180
-					new_state <= LilForward;
-				else
-					new_state <= MazeCheck;
-				end if;
+				--if (MazeTurn = "010") then --straight
+					--new_state <= forward;
+				--elsif (MazeTurn = "100") or (MazeTurn = "001") or (MazeTurn = "111") then --left right 180
+					--new_state <= LilForward;
+				--else
+					--new_state <= MazeCheck;
+				--end if;
 			
 			when LilForward =>
 				count_reset <= '1';
@@ -139,14 +142,19 @@ begin
 				motor_r_direction <= '0';
 				MazePoint <= '1';
 				if (sensor_l='1') or (sensor_m='1') or (sensor_r='1') then
-					if (MazeTurn = "100") then
-						new_state <= Left90;
-					elsif (MazeTurn = "001") then
-						new_state <= Right90;
-					--elsif (MazeTurn = "111") then
-						--new_state <= Turn180;
+					new_checkpoint <= not(checkpoint);
+					if (checkpoint='0') then
+						if (MazeTurn = "100") then
+							new_state <= Left90;
+						elsif (MazeTurn = "001") then
+							new_state <= Right90;
+						--elsif (MazeTurn = "111") then
+							--new_state <= Turn180;
+						else
+							new_state <= reset_state;
+						end if;
 					else
-						new_state <= MazeCheck;
+						new_state <= reset_state;
 					end if;
 				end if;
 			when Left90 =>
