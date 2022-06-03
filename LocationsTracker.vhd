@@ -13,7 +13,7 @@ entity LocationsTracker is
 end entity LocationsTracker;
 
 Architecture behavioural of LocationsTracker is
-	type LocTrackState is (Data1,Data2,Data3, OrientCalc, TurnCalc, WaitState1,WaitState2,WaitState3, QuickBack);
+	type LocTrackState is (Data1,Data2,Data3, OrientCalc, TurnCalc, WaitState1,WaitState2,WaitState3, QuickBack, WaitForMazePoint);
 	signal state, new_state: LocTrackState;
 	signal loc1, loc2, new_loc1, new_loc2: std_logic_vector (15 downto 0);
 	signal orient1, orient2, new_orient1, new_orient2, MazeHold: std_logic_vector (2 downto 0);
@@ -59,6 +59,8 @@ begin
 				MazeTurn <= "000";
 				if (data_ready = '0') then
 					new_state <= Data2;
+				else
+					new_state <= WaitState1;
 				end if;
 					
 			when Data2 =>
@@ -66,12 +68,16 @@ begin
 				if (data_ready = '1') then
 					new_loc2(15 downto 8) <= data_in;
 					new_state <= WaitState2;
+				else
+					new_state <= Data2;
 				end if;
 
 			when WaitState2 =>
 				MazeTurn <= "000";
 				if (data_ready = '0') then
 					new_state <= Data3;
+				else
+					new_state <= WaitState2;
 				end if;
 
 			when Data3 =>
@@ -79,6 +85,8 @@ begin
 				if (data_ready = '1') then
 					new_loc2(7 downto 0) <= data_in;
 					new_state <= OrientCalc;
+				else 
+					new_state <= Data3;
 				end if;
 
 			when OrientCalc =>
@@ -142,6 +150,8 @@ begin
 				end if;
 				if (MazePoint = '1') then
 					new_state <= WaitState3;
+				else 
+					new_state <= WaitForMazePoint;
 				end if;
 
 			when QuickBack =>
@@ -150,12 +160,22 @@ begin
 				new_orient1 <= new_orient2;
 				new_state <= Data1;
 
+			when WaitForMazePoint =>
+				MazeTurn <= "000";
+				if (MazePoint = '1') then
+					new_state <= WaitState3;
+				else 
+					new_state <= WaitForMazePoint;
+				end if;
+
 			when WaitState3 =>
 				MazeTurn <= MazeHold;
-				if (MazePoint = '0') then --or (new_orient1 = "000") then
+				if (MazePoint = '0') then
 					new_loc1 <= new_loc2;
 					new_orient1 <= new_orient2;
 					new_state <= Data1;
+				else
+					new_state <= WaitState3;
 				end if;
 		end case;
 	end process;
