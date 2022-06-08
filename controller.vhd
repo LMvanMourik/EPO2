@@ -44,7 +44,7 @@ begin
 		end if;
 	end process;
 	
-	process(state,count_in,sensor_l,sensor_m,sensor_r,checkpoint)
+	process(state,count_in,sensor_l,sensor_m,sensor_r,checkpoint, MazeTurn)
 	begin
 		new_checkpoint <= checkpoint;
 		case state is
