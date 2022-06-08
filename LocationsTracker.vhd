@@ -40,13 +40,14 @@ begin
 
 	process(data_ready, data_in,state,loc1,loc2,orient1,orient2)
 	begin
-		new_loc1 <= loc1;
-		new_loc2 <= loc2;
-		new_orient1 <= orient1;
-		new_orient2 <= orient2;
 		case state is
 			when Data1 =>
 				MazeTurn <= "000";
+				MazeHold <= "000";
+				new_loc1 <= loc1;
+				new_loc2 <= loc2;
+				new_orient1 <= orient1;
+				new_orient2 <= orient2;
 				if (data_ready = '1') then
 					if (data_in = "01100011") then
 						new_state <= WaitState1;
@@ -57,6 +58,11 @@ begin
 			
 			when WaitState1 =>
 				MazeTurn <= "000";
+				MazeHold <= "000";	
+				new_loc1 <= loc1;
+				new_loc2 <= loc2;
+				new_orient1 <= orient1;
+				new_orient2 <= orient2;
 				if (data_ready = '0') then
 					new_state <= Data2;
 				else
@@ -65,15 +71,26 @@ begin
 					
 			when Data2 =>
 				MazeTurn <= "000";
+				MazeHold <= "000";	
+				new_loc1 <= loc1;
+				new_orient1 <= orient1;
+				new_orient2 <= orient2;
 				if (data_ready = '1') then
 					new_loc2(15 downto 8) <= data_in;
+					new_loc2(7 downto 0) <= loc2(7 downto 0); 
 					new_state <= WaitState2;
 				else
 					new_state <= Data2;
+					new_orient2 <= orient2;
 				end if;
 
 			when WaitState2 =>
 				MazeTurn <= "000";
+				MazeHold <= "000";	
+				new_loc1 <= loc1;
+				new_loc2 <= loc2;
+				new_orient1 <= orient1;
+				new_orient2 <= orient2;
 				if (data_ready = '0') then
 					new_state <= Data3;
 				else
@@ -82,15 +99,25 @@ begin
 
 			when Data3 =>
 				MazeTurn <= "000";
+				MazeHold <= "000";	
+				new_loc1 <= loc1;
+				new_orient1 <= orient1;
+				new_orient2 <= orient2;
 				if (data_ready = '1') then
 					new_loc2(7 downto 0) <= data_in;
+					new_loc2(15 downto 8) <= loc2(15 downto 8);
 					new_state <= OrientCalc;
 				else 
 					new_state <= Data3;
+					new_loc2 <= loc2;
 				end if;
 
 			when OrientCalc =>
 				MazeTurn <= "000";
+				MazeHold <= "000";	
+				new_loc1 <= loc1;
+				new_loc2 <= loc2;
+				new_orient1 <= orient1;
 				if (unsigned(new_loc1) = to_unsigned(0,24)) then
 					if (new_loc2(7 downto 0) = "00110000") then
 						new_orient2 <= "001"; --east
@@ -116,6 +143,10 @@ begin
 
 			when TurnCalc =>
 				MazeTurn <= "000";
+				new_loc1 <= loc1;
+				new_loc2 <= loc2;
+				new_orient1 <= orient1;
+				new_orient2 <= orient2;
 				if (new_orient1 = "000") then
 					MazeHold <= "000";
 					new_state <= QuickBack;
@@ -156,12 +187,21 @@ begin
 
 			when QuickBack =>
 				MazeTurn <= MazeHold;
+				MazeHold <= MazeHold;
 				new_loc1 <= new_loc2;
 				new_orient1 <= new_orient2;
+	
+				new_loc2 <= loc2;
+				new_orient2 <= orient2;
 				new_state <= Data1;
 
 			when WaitForMazePoint =>
 				MazeTurn <= "000";
+				MazeHold <= MazeHold;	
+				new_loc1 <= loc1;
+				new_loc2 <= loc2;
+				new_orient1 <= orient1;
+				new_orient2 <= orient2;
 				if (MazePoint = '1') then
 					new_state <= WaitState3;
 				else 
@@ -170,12 +210,17 @@ begin
 
 			when WaitState3 =>
 				MazeTurn <= MazeHold;
+				MazeHold <= MazeHold;
+				new_loc2 <= loc2;
+				new_orient2 <= orient2;
 				if (MazePoint = '0') then
 					new_loc1 <= new_loc2;
 					new_orient1 <= new_orient2;
 					new_state <= Data1;
 				else
 					new_state <= WaitState3;
+					new_orient1 <= orient1;
+					new_loc1 <= loc1;
 				end if;
 		end case;
 	end process;

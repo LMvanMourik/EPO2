@@ -46,7 +46,6 @@ begin
 	
 	process(state,count_in,sensor_l,sensor_m,sensor_r,checkpoint, MazeTurn)
 	begin
-		new_checkpoint <= checkpoint;
 		case state is
 			when reset_state =>
 				MazePoint <= '0';
@@ -57,12 +56,16 @@ begin
 				motor_r_direction <= '0';
 				if (sensor_l='0') and (sensor_m='1') and (sensor_r='1') then
 					new_state <= Sleft;
+					new_checkpoint <= checkpoint;
 				elsif (sensor_l='0') and (sensor_m='0') and (sensor_r='1') then
 					new_state <= Gleft;
+					new_checkpoint <= checkpoint;
 				elsif (sensor_l='1') and (sensor_m='0') and (sensor_r='0') then
 					new_state <= Gright;
+					new_checkpoint <= checkpoint;
 				elsif (sensor_l='1') and (sensor_m='1') and (sensor_r='0') then
 					new_state <= Sright;
+					new_checkpoint <= checkpoint;
 				elsif (sensor_l='0') and (sensor_m='0') and (sensor_r='0') then
 					new_checkpoint <= not(checkpoint);
 					if (checkpoint = '0') then
@@ -76,6 +79,7 @@ begin
 					end if;
 				else
 					new_state <= forward;
+					new_checkpoint <= checkpoint;
 				end if;
 			when Sleft =>
 				MazePoint <= '0';
@@ -84,6 +88,7 @@ begin
 				motor_l_direction <= '0';
 				motor_r_reset <= '0';
 				motor_r_direction <= '0';
+				new_checkpoint <= checkpoint;
 				if (unsigned(count_in) = to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
@@ -94,6 +99,7 @@ begin
 				motor_l_direction <= '0';
 				motor_r_reset <= '0';
 				motor_r_direction <= '0';
+				new_checkpoint <= checkpoint;
 				if (unsigned(count_in) = to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
@@ -104,6 +110,7 @@ begin
 				motor_l_direction <= '1';
 				motor_r_reset <= '1';
 				motor_r_direction <= '0';
+				new_checkpoint <= checkpoint;
 				if (unsigned(count_in) = to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
@@ -114,6 +121,7 @@ begin
 				motor_r_reset <= '0';
 				motor_r_direction <= '1';
 				MazePoint <= '0';
+				new_checkpoint <= checkpoint;
 				if (unsigned(count_in) = to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
@@ -124,6 +132,7 @@ begin
 				motor_r_reset <= '0';
 				motor_r_direction <= '0';
 				MazePoint <= '0';
+				new_checkpoint <= checkpoint;
 				if (unsigned(count_in) = to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
@@ -134,6 +143,7 @@ begin
 				motor_r_reset <= '0';
 				motor_r_direction <= '0';
 				MazePoint <= '0';
+				new_checkpoint <= checkpoint;
 				if (sensor_l = '1') or (sensor_l = '1') or (sensor_l = '1') then
 					new_state <= reset_state;
 				else
@@ -146,6 +156,7 @@ begin
 				motor_r_reset <= '1';
 				motor_r_direction <= '0';
 				MazePoint <= '1';
+				new_checkpoint <= checkpoint;
 				if (MazeTurn /= "000") then
 					new_state <= LilForward;
 				else
@@ -158,6 +169,7 @@ begin
 				motor_r_reset <= '0';
 				motor_r_direction <= '0';
 				MazePoint <= '1';
+				new_checkpoint <= checkpoint;
 				if (sensor_l='1') or (sensor_m='1') or (sensor_r='1') then
 					if (MazeTurn = "100") then
 						new_state <= Left90;
@@ -178,6 +190,7 @@ begin
 				motor_r_reset <= '0';
 				motor_r_direction <= '0';
 				MazePoint <= '1';
+				new_checkpoint <= checkpoint;
 				if (sensor_l='0') then
 					new_state <= reset_state;
 				else 
@@ -191,6 +204,7 @@ begin
 				motor_r_reset <= '0';
 				motor_r_direction <= '1';
 				MazePoint <= '1';
+				new_checkpoint <= checkpoint;
 				if (sensor_r='0') then 
 					new_state <= reset_state;
 				else
