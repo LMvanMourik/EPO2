@@ -81,7 +81,7 @@ begin
 					new_state <= WaitState2;
 				else
 					new_state <= Data2;
-					new_orient2 <= orient2;
+					new_loc2 <= loc2;
 				end if;
 
 			when WaitState2 =>
@@ -187,7 +187,7 @@ begin
 
 			when QuickBack =>
 				MazeTurn <= MazeHold;
-				MazeHold <= MazeHold;
+				MazeHold <= "000";
 				new_loc1 <= new_loc2;
 				new_orient1 <= new_orient2;
 	
