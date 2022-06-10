@@ -69,20 +69,16 @@ begin
 					"100" after 140 ms,
 					"000" after 200 ms, -- checkpoint test
 					"110" after 240 ms,
-					"000" after 280 ms, -- right test
+					"000" after 280 ms, -- straight test
 					"001" after 300 ms,
 					"000" after 360 ms, -- checkpoint
 					"101" after 400 ms,
-					"000" after 440 ms, --straight test
+					"000" after 440 ms, --right test
 					"101" after 460 ms,
-					"110" after 490 ms;
-					--"101" after 480 ms,
-					--"000" after 520 ms, -- left test
-					--"101" after 560 ms,
-					--"110" after 600 ms,
-					--"111" after 640 ms,
-					--"011" after 680 ms,
-					--"101" after 720 ms;
+					"110" after 500 ms,
+					"111" after 540 ms,
+					"101" after 600 ms;
+					
 
 	MazeTurn <= "000" after 0 ns,
 		"100" after 120 ms, --left
@@ -90,7 +86,9 @@ begin
 		"010" after 200 ms,
 		"000" after 320 ms,
 		"001" after 460 ms,
-		"000" after 470 ms;
+		"000" after 470 ms,
+		"111" after 560 ms,
+		"000" after 580 ms;
 		
 
 	sensor_l		<= 	sensors(2);
