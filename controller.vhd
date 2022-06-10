@@ -54,19 +54,19 @@ begin
 				motor_l_direction <= '0';
 				motor_r_reset <= '1';
 				motor_r_direction <= '0';
-				if (sensor_l='0') and (sensor_m='1') and (sensor_r='1') then
+				if (sensor_l='0') and (sensor_m='1') and (sensor_r='1') then --bww
 					new_state <= Sleft;
 					new_checkpoint <= checkpoint;
-				elsif (sensor_l='0') and (sensor_m='0') and (sensor_r='1') then
+				elsif (sensor_l='0') and (sensor_m='0') and (sensor_r='1') then --bbw
 					new_state <= Gleft;
 					new_checkpoint <= checkpoint;
-				elsif (sensor_l='1') and (sensor_m='0') and (sensor_r='0') then
+				elsif (sensor_l='1') and (sensor_m='0') and (sensor_r='0') then --wbb
 					new_state <= Gright;
 					new_checkpoint <= checkpoint;
-				elsif (sensor_l='1') and (sensor_m='1') and (sensor_r='0') then
+				elsif (sensor_l='1') and (sensor_m='1') and (sensor_r='0') then --wwb
 					new_state <= Sright;
 					new_checkpoint <= checkpoint;
-				elsif (sensor_l='0') and (sensor_m='0') and (sensor_r='0') then
+				elsif (sensor_l='0') and (sensor_m='0') and (sensor_r='0') then --bbb
 					new_checkpoint <= not(checkpoint);
 					if (checkpoint = '0') then
 						if (MazeTurn /= "000") then
@@ -77,9 +77,9 @@ begin
 					else
 						new_state <= ForwardTillNonblack;
 					end if;
-				elsif (sensor_l='1') and (sensor_m='1') and (sensor_r='1') then
+				elsif (sensor_l='1') and (sensor_m='1') and (sensor_r='1') then --www
 					new_state <= MazeCheck;
-				else
+				else --wbw bwb
 					new_state <= forward;
 					new_checkpoint <= checkpoint;
 				end if;
@@ -161,7 +161,7 @@ begin
 				new_checkpoint <= checkpoint;
 				if (MazeTurn = "111") then
 					new_state <= Turn180;
-				elsif (MazeTurn /= "000") then
+				elsif (MazeTurn = "000") then
 					new_state <= MazeCheck;
 				else
 					new_state <= LilForward;
