@@ -27,7 +27,7 @@ entity controller is
 end entity controller;
 
 Architecture behavioural of controller is
-	type controll_state is (reset_state, Sleft, Gleft, forward, Gright, Sright, LilForward, Left90, Right90, MazeCheck, ForwardTillNonBlack); --Turn180);
+	type controll_state is (reset_state, Sleft, Gleft, forward, Gright, Sright, LilForward, Left90, Right90,Turn180, MazeCheck, ForwardTillNonBlack); --Turn180);
 	signal state, new_state: controll_state;
 	signal checkpoint, new_checkpoint: std_logic;
 begin
@@ -77,6 +77,8 @@ begin
 					else
 						new_state <= ForwardTillNonblack;
 					end if;
+				elsif (sensor_l='1') and (sensor_m='1') and (sensor_r='1') then
+					new_state <= MazeCheck;
 				else
 					new_state <= forward;
 					new_checkpoint <= checkpoint;
@@ -89,7 +91,7 @@ begin
 				motor_r_reset <= '0';
 				motor_r_direction <= '0';
 				new_checkpoint <= checkpoint;
-				if (unsigned(count_in) = to_unsigned(1000000,20)) then
+				if (unsigned(count_in) >= to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
 			when Gleft =>
@@ -100,7 +102,7 @@ begin
 				motor_r_reset <= '0';
 				motor_r_direction <= '0';
 				new_checkpoint <= checkpoint;
-				if (unsigned(count_in) = to_unsigned(1000000,20)) then
+				if (unsigned(count_in) >= to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
 			when Gright =>
@@ -111,7 +113,7 @@ begin
 				motor_r_reset <= '1';
 				motor_r_direction <= '0';
 				new_checkpoint <= checkpoint;
-				if (unsigned(count_in) = to_unsigned(1000000,20)) then
+				if (unsigned(count_in) >= to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
 			when Sright =>
@@ -122,7 +124,7 @@ begin
 				motor_r_direction <= '1';
 				MazePoint <= '0';
 				new_checkpoint <= checkpoint;
-				if (unsigned(count_in) = to_unsigned(1000000,20)) then
+				if (unsigned(count_in) >= to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
 			when forward =>
@@ -133,7 +135,7 @@ begin
 				motor_r_direction <= '0';
 				MazePoint <= '0';
 				new_checkpoint <= checkpoint;
-				if (unsigned(count_in) = to_unsigned(1000000,20)) then
+				if (unsigned(count_in) >= to_unsigned(1000000,20)) then
 					new_state <= reset_state;
 				end if;
 			when ForwardTillNonBlack =>
@@ -157,10 +159,12 @@ begin
 				motor_r_direction <= '0';
 				MazePoint <= '1';
 				new_checkpoint <= checkpoint;
-				if (MazeTurn /= "000") then
-					new_state <= LilForward;
-				else
+				if (MazeTurn = "111") then
+					new_state <= Turn180;
+				elsif (MazeTurn /= "000") then
 					new_state <= MazeCheck;
+				else
+					new_state <= LilForward;
 				end if;
 			when LilForward =>
 				count_reset <= '1';
@@ -210,7 +214,19 @@ begin
 				else
 					new_state <= Right90;
 				end if;
-			--when Turn180 =>
+			when Turn180 =>
+				count_reset <= '0';
+				motor_l_reset <= '0';
+				motor_l_direction <= '1';
+				motor_r_reset <= '0';
+				motor_r_direction <= '1';
+				MazePoint <= '1';
+				new_checkpoint <= checkpoint;
+				if (sensor_l='0') or (sensor_m='0') or (sensor_r='0') then 
+					new_state <= reset_state;
+				else
+					new_state <= Right90;
+				end if;
 		end case;
 	end process;
 end Architecture behavioural;

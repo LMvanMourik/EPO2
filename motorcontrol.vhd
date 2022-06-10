@@ -37,9 +37,9 @@ begin
 				new_state <= pwm_on;
 			when pwm_on =>
 				pwm <= '1';
-				if (direction='0') and (unsigned(count_in) = to_unsigned(50000,20)) then --50000 16 bit
+				if (direction='0') and (unsigned(count_in) >= to_unsigned(50000,20)) then --50000 16 bit
 					new_state <= pwm_off;
-				elsif (direction='1') and (unsigned(count_in) = to_unsigned(100000,20)) then----17 bits
+				elsif (direction='1') and (unsigned(count_in) >= to_unsigned(100000,20)) then----17 bits
 					new_state <= pwm_off;
 				else new_state <= pwm_on;
 				end if;

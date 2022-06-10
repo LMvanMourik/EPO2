@@ -13,214 +13,74 @@ entity LocationsTracker is
 end entity LocationsTracker;
 
 Architecture behavioural of LocationsTracker is
-	type LocTrackState is (Data1,Data2,Data3, OrientCalc, TurnCalc, WaitState1,WaitState2,WaitState3, QuickBack, WaitForMazePoint);
+	type LocTrackState is (Data1, TurnCalc, WaitState, WaitForMazePoint);
 	signal state, new_state: LocTrackState;
-	signal loc1, loc2, new_loc1, new_loc2: std_logic_vector (15 downto 0);
-	signal orient1, orient2, new_orient1, new_orient2, MazeHold: std_logic_vector (2 downto 0);
+	signal Turn, new_Turn: std_logic_vector(7 downto 0);
+	--signal loc1, loc2, new_loc1, new_loc2: std_logic_vector (15 downto 0);
+	signal MazeHold: std_logic_vector (2 downto 0); --orient1, orient2, new_orient1, new_orient2, 
 
 begin
 	process(clk)
 	begin
 		if (rising_edge(clk)) then
 			if (reset='1') then
-				loc1 <= (others => '0');
-				loc2 <= (others => '0');
-				orient1 <= (others => '0');
-				orient2 <= (others => '0');
 				state <= Data1;
+				Turn <= "00000000";
 			else	
 				state <= new_state;
-				loc1 <= new_loc1;
-				loc2 <= new_loc2;
-				orient1 <= new_orient1;
-				orient2 <= new_orient2;
+				Turn <= new_Turn;
 			end if;
 		end if;
 	end process;
 
-	process(data_ready, data_in,state,loc1,loc2,orient1,orient2)
+	process(state, data_ready, data_in, Turn)
 	begin
 		case state is
 			when Data1 =>
 				MazeTurn <= "000";
 				MazeHold <= "000";
-				new_loc1 <= loc1;
-				new_loc2 <= loc2;
-				new_orient1 <= orient1;
-				new_orient2 <= orient2;
 				if (data_ready = '1') then
-					if (data_in = "01100011") then
-						new_state <= WaitState1;
-					else
-						new_state <= Data1;
-					end if;
-				end if;
-			
-			when WaitState1 =>
-				MazeTurn <= "000";
-				MazeHold <= "000";	
-				new_loc1 <= loc1;
-				new_loc2 <= loc2;
-				new_orient1 <= orient1;
-				new_orient2 <= orient2;
-				if (data_ready = '0') then
-					new_state <= Data2;
+					new_Turn <= data_in;
+					new_state <= TurnCalc;
 				else
-					new_state <= WaitState1;
+					new_state <= Data1;
+					new_Turn <= Turn;
 				end if;
-					
-			when Data2 =>
-				MazeTurn <= "000";
-				MazeHold <= "000";	
-				new_loc1 <= loc1;
-				new_orient1 <= orient1;
-				new_orient2 <= orient2;
-				if (data_ready = '1') then
-					new_loc2(15 downto 8) <= data_in;
-					new_loc2(7 downto 0) <= loc2(7 downto 0); 
-					new_state <= WaitState2;
-				else
-					new_state <= Data2;
-					new_loc2 <= loc2;
-				end if;
-
-			when WaitState2 =>
-				MazeTurn <= "000";
-				MazeHold <= "000";	
-				new_loc1 <= loc1;
-				new_loc2 <= loc2;
-				new_orient1 <= orient1;
-				new_orient2 <= orient2;
-				if (data_ready = '0') then
-					new_state <= Data3;
-				else
-					new_state <= WaitState2;
-				end if;
-
-			when Data3 =>
-				MazeTurn <= "000";
-				MazeHold <= "000";	
-				new_loc1 <= loc1;
-				new_orient1 <= orient1;
-				new_orient2 <= orient2;
-				if (data_ready = '1') then
-					new_loc2(7 downto 0) <= data_in;
-					new_loc2(15 downto 8) <= loc2(15 downto 8);
-					new_state <= OrientCalc;
-				else 
-					new_state <= Data3;
-					new_loc2 <= loc2;
-				end if;
-
-			when OrientCalc =>
-				MazeTurn <= "000";
-				MazeHold <= "000";	
-				new_loc1 <= loc1;
-				new_loc2 <= loc2;
-				new_orient1 <= orient1;
-				if (unsigned(new_loc1) = to_unsigned(0,24)) then
-					if (new_loc2(7 downto 0) = "00110000") then
-						new_orient2 <= "001"; --east
-					elsif (new_loc2(7 downto 0) = "00110100") then
-						new_orient2 <= "110"; --west
-					elsif (new_loc2(15 downto 8) = "00110000") then
-						new_orient2 <= "010"; --south	
-					else
-						new_orient2 <= "101"; --north
-					end if;
-				else	
-					if (new_loc2(7 downto 0) > new_loc1(7 downto 0)) then
-						new_orient2 <= "001";
-					elsif (new_loc2(7 downto 0) < new_loc1(7 downto 0)) then
-						new_orient2 <= "110";
-					elsif (new_loc2(15 downto 8) > new_loc1(15 downto 8)) then
-						new_orient2 <= "010";
-					else
-						new_orient2 <= "101";	
-					end if;
-				end if;
-				new_state <= TurnCalc;
 
 			when TurnCalc =>
 				MazeTurn <= "000";
-				new_loc1 <= loc1;
-				new_loc2 <= loc2;
-				new_orient1 <= orient1;
-				new_orient2 <= orient2;
-				if (new_orient1 = "000") then
+				new_Turn <= Turn;
+				if (Turn = "01100110") then --forward
+					MazeHold <= "010";
+				elsif (Turn= "01101100") then --left
+					MazeHold <= "100"; 
+				elsif (Turn = "01110010") then --right
+					MazeHold <= "001";
+				elsif (Turn = "01110101") then --u turn
+					MazeHold<= "111";
+				else ---n
 					MazeHold <= "000";
-					new_state <= QuickBack;
-				elsif (new_orient1 = new_orient2) then
-					MazeHold <= "010"; --staight
-				else 
-					if (new_orient1 = "001") then --east
-						if (new_orient2 = "010") then --south
-							MazeHold <= "001"; --right
-						else --north
-							MazeHold <= "100"; --left
-						end if;
-					elsif (new_orient1 = "110") then --west
-						if (new_orient2 = "010") then --south
-							MazeHold<= "100"; --left
-						else --north
-							MazeHold <= "001"; --right
-						end if;
-					elsif (new_orient1 = "010") then --south
-						if (new_orient2 = "001") then --east
-							MazeHold <= "100"; --left
-						else --west
-							MazeHold<= "001"; --right
-						end if;
-					else --north
-						if (new_orient2 = "001") then --east
-							MazeHold <= "001"; --right
-						else --west
-							MazeHold <= "100"; --left
-						end if;
-					end if;
 				end if;
 				if (MazePoint = '1') then
-					new_state <= WaitState3;
+					new_state <= WaitState;
 				else 
 					new_state <= WaitForMazePoint;
 				end if;
-
-			when QuickBack =>
-				MazeTurn <= MazeHold;
-				MazeHold <= "000";
-				new_loc1 <= new_loc2;
-				new_orient1 <= new_orient2;
-	
-				new_loc2 <= loc2;
-				new_orient2 <= orient2;
-				new_state <= Data1;
 
 			when WaitForMazePoint =>
 				MazeTurn <= "000";
-				MazeHold <= MazeHold;	
-				new_loc1 <= loc1;
-				new_loc2 <= loc2;
-				new_orient1 <= orient1;
-				new_orient2 <= orient2;
 				if (MazePoint = '1') then
-					new_state <= WaitState3;
+					new_state <= WaitState;
 				else 
 					new_state <= WaitForMazePoint;
 				end if;
 
-			when WaitState3 =>
+			when WaitState =>
 				MazeTurn <= MazeHold;
-				MazeHold <= MazeHold;
-				new_loc2 <= loc2;
-				new_orient2 <= orient2;
 				if (MazePoint = '0') then
-					new_loc1 <= new_loc2;
-					new_orient1 <= new_orient2;
 					new_state <= Data1;
 				else
-					new_state <= WaitState3;
-					new_orient1 <= orient1;
-					new_loc1 <= loc1;
+					new_state <= WaitState;
 				end if;
 		end case;
 	end process;

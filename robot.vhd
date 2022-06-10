@@ -2,6 +2,7 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 
 entity robot is
+	generic(FREQ_SCALE : integer := 1);
 	port (  clk             : in    std_logic;
 		reset           : in    std_logic;
 
@@ -11,11 +12,13 @@ entity robot is
 
 		motor_l_pwm     : out   std_logic;
 		motor_r_pwm     : out   std_logic;
+
+		mine_sensor	: in std_logic;
 		
 		rx: in std_logic;
-		tx: out std_logic;
-		read_data: in std_logic;
-		write_data:  in std_logic
+		tx: out std_logic --;
+		--read_data: in std_logic;
+		--write_data:  in std_logic
 	);
 end entity robot;
 
@@ -97,6 +100,7 @@ Architecture structural of robot is
 	end component LocationsTracker;
 	
 	signal sensor_l, sensor_m, sensor_r, count_reset, MazePoint, data_ready, buffer_empty: std_logic;
+	signal read_data, write_data: std_logic; --maybe comment out
 	signal MazeTurn: std_logic_vector(2 downto 0);
 	signal data, data_in: std_logic_vector (7 downto 0);
 	signal count: std_logic_vector (19 downto 0);
@@ -124,12 +128,14 @@ begin
 					MazePoint => MazePoint,
 					MazeTurn => MazeTurn);
 					
-	timer: timebase port map (	clk			=> clk,
+	timer: timebase 
+			generic map(FREQ_SCALE => FREQ_SCALE)
+			port map (	clk			=> clk,
 					reset			=> count_reset,
 					count_out		=> count);
 					
 	motor_l: motorcontrol port map (clk			=> clk,
-					reset			=> motor_l_reset, --??
+					reset			=> motor_l_reset, 
 					direction		=> motor_l_direction,
 					count_in		=> count,
 					pwm			=> motor_l_pwm);

@@ -5,6 +5,7 @@ use IEEE.numeric_std.all;
 
 
 entity timebase is
+	generic(FREQ_SCALE: integer:=1);
 	port (	clk		: in	std_logic;
 		reset		: in	std_logic;
 		count_out	: out	std_logic_vector (19 downto 0));  -- Please enter upper bound
@@ -27,7 +28,7 @@ begin
 	--add_1
 	add_1: process(count)
 	begin
-		new_count <= count+1;
+		new_count <= count+ FREQ_SCALE;
 	end process;
 
 count_out <= std_logic_vector(count);
