@@ -8,7 +8,7 @@
 #include <Windows.h>
 #include <string.h>
 
-#define COMPORT "COM3"
+#define COMPORT "COM6"
 #define BAUDRATE CBR_9600
 
 
@@ -71,7 +71,7 @@ void initSio(HANDLE hSerial){
     }
 }
 
-int readByte(HANDLE hSerial, char *buffRead) {
+int readByte(HANDLE hSerial, char *buffRead, int i) {
 
     DWORD dwBytesRead = 0;
 
@@ -79,11 +79,11 @@ int readByte(HANDLE hSerial, char *buffRead) {
     {
         printf(" Error reading byte from input buffer \n");
     }
-    printf(" Byte read from read buffer is: %c \n", buffRead[0]);
+    printf(" Byte read from read buffer is: %c \n", buffRead[i]);
     return(0);
 }
 
-int writeByte(HANDLE hSerial, char *buffWrite){
+int writeByte(HANDLE hSerial, char *buffWrite, int i){
 
     DWORD dwBytesWritten = 0;
 
@@ -91,7 +91,7 @@ int writeByte(HANDLE hSerial, char *buffWrite){
     {
         printf(" Error writing byte to output buffer \n");
     }
-    printf(" Byte written to write buffer is: %c \n", buffWrite[0]);
+    printf(" Byte written to write buffer is: %c \n", buffWrite[i]);
 
     return(0);
 }
@@ -642,7 +642,10 @@ int main()
 
 
     HANDLE hSerial;
+    int length = sizeof(commands) / sizeof(commands[0]);
     char byteBuffer[BUFSIZ+1];
+
+
 
     printf(" Opening "COMPORT" \n");
 
@@ -667,15 +670,19 @@ int main()
     }
 
     initSio(hSerial);
+    for(i=0;i<length;i++) {
+            byteBuffer[i] = commands[i];
+    }
 
     while ( 1 ) {
         gets(byteBuffer);
 
         if (byteBuffer[0] == 'q')
             break;
-
-        writeByte(hSerial, byteBuffer);
-        readByte(hSerial, byteBuffer);
+        for(int test = 0; test<length;test++) {
+            readByte(hSerial, byteBuffer, test);
+            writeByte(hSerial, byteBuffer, test);
+        }
     }
 
     printf(" ZIGBEE IO DONE!\n");
