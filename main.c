@@ -8,7 +8,7 @@
 #include <Windows.h>
 #include <string.h>
 
-#define COMPORT "COM6"
+#define COMPORT "COM4"
 #define BAUDRATE CBR_9600
 
 
@@ -71,7 +71,7 @@ void initSio(HANDLE hSerial){
     }
 }
 
-int readByte(HANDLE hSerial, char *buffRead, int i) {
+int readByte(HANDLE hSerial, char *buffRead) {
 
     DWORD dwBytesRead = 0;
 
@@ -79,12 +79,11 @@ int readByte(HANDLE hSerial, char *buffRead, int i) {
     {
         printf(" Error reading byte from input buffer \n");
     }
-    printf(" Byte read from read buffer is: %c \n", buffRead[i]);
-
-    return('7');
+    printf(" Byte read from read buffer is: %c \n", buffRead[0]);
+    return(0);
 }
 
-int writeByte(HANDLE hSerial, char *buffWrite, int i){
+int writeByte(HANDLE hSerial, char *buffWrite){
 
     DWORD dwBytesWritten = 0;
 
@@ -92,9 +91,9 @@ int writeByte(HANDLE hSerial, char *buffWrite, int i){
     {
         printf(" Error writing byte to output buffer \n");
     }
-    printf(" Byte written to write buffer is: %c \n", buffWrite[i]);
+    printf(" Byte written to write buffer is: %c \n", buffWrite[0]);
 
-    return(buffWrite[i]);
+    return(0);
 }
 
 int main()
@@ -106,7 +105,7 @@ int main()
     int sx[3], sy[3];
     int sxb = 4,syb = 12;
     int path[40] = {0};
-    char commands[20] = {'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n'};
+    char commands[21] = {'f', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n'};
     char current_orientation = 0, new_orientation = 0, flipped_orientation = 0;
     char p,q;
     int delta;
@@ -636,7 +635,7 @@ int main()
     }
 
     /* Print the commands array */
-    for(i=0;i<20;i++){
+    for(i=0;i<21;i++){
         printf("%c", commands[i]);
     }
     printf("\n");
@@ -671,19 +670,26 @@ int main()
     }
 
     initSio(hSerial);
+
+
     for(i=0;i<length;i++) {
-            byteBuffer[i] = commands[i];
-    }
 
-    while ( 1 ) {
-        gets(byteBuffer);
+        byteBuffer[0] = commands[i];
 
-        if (byteBuffer[0] == 'q')
+
+
+        //gets(byteBuffer);
+
+        if (byteBuffer[0] == 'q') {
             break;
-        for(int test = 0; test<length;test++) {
-            readByte(hSerial, byteBuffer, test);
-            writeByte(hSerial, byteBuffer, test);
         }
+
+        writeByte(hSerial, byteBuffer);
+        readByte(hSerial, byteBuffer);
+
+
+
+
     }
 
     printf(" ZIGBEE IO DONE!\n");
