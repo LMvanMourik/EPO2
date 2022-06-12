@@ -15,7 +15,7 @@ entity robot is
 		mine_sensor	: in std_logic;
 		
 		rx: in std_logic;
-		tx: out std_logic ;
+		tx: out std_logic;
 		read_data: in std_logic;
 		write_data:  in std_logic
 	);
@@ -127,8 +127,7 @@ begin
 					MazePoint => MazePoint,
 					MazeTurn => MazeTurn);
 					
-	timer: timebase 
-			port map (	clk			=> clk,
+	timer: timebase port map (	clk			=> clk,
 					reset			=> count_reset,
 					count_out		=> count);
 					

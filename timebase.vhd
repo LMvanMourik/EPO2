@@ -27,7 +27,7 @@ begin
 	--add_1
 	add_1: process(count)
 	begin
-		new_count <= count+ 1;
+		new_count <= count + 1;
 	end process;
 
 count_out <= std_logic_vector(count);

@@ -33,13 +33,13 @@ begin
 		end if;
 	end process;
 
-	process(state, data_ready, data_in, Turn)
+	process(state, data_ready, data_in, Turn, MazePoint)
 	begin
 		case state is
 			when Data1 =>
 				MazeTurn <= "000";
 				MazeHold <= "000";
-				if (data_ready = '1') then
+				if (data_ready = '1') and (data_in /= "00000000") then
 					new_Turn <= data_in;
 					new_state <= TurnCalc;
 				else

@@ -27,7 +27,7 @@ entity controller is
 end entity controller;
 
 Architecture behavioural of controller is
-	type controll_state is (reset_state, Sleft, Gleft, forward, Gright, Sright, LilForward, Left90, Right90,Turn180, MazeCheck, ForwardTillNonBlack); --Turn180);
+	type controll_state is (reset_state,Sleft,Gleft,forward,Gright,Sright,LilForward,Left90,Right90,Turn180,MazeCheck,ForwardTillNonBlack,StationEnd);
 	signal state, new_state: controll_state;
 	signal checkpoint, new_checkpoint: std_logic;
 begin
@@ -78,7 +78,12 @@ begin
 						new_state <= ForwardTillNonblack;
 					end if;
 				elsif (sensor_l='1') and (sensor_m='1') and (sensor_r='1') then --www
-					new_state <= MazeCheck;
+					new_checkpoint <= checkpoint;
+					if (checkpoint = '1') then
+						new_state <= StationEnd;
+					else
+						new_state <= forward;
+					end if ;
 				else --wbw bwb
 					new_state <= forward;
 					new_checkpoint <= checkpoint;
@@ -159,12 +164,24 @@ begin
 				motor_r_direction <= '0';
 				MazePoint <= '1';
 				new_checkpoint <= checkpoint;
-				if (MazeTurn = "111") then
-					new_state <= Turn180;
-				elsif (MazeTurn = "000") then
+				if (MazeTurn = "000") then
 					new_state <= MazeCheck;
 				else
 					new_state <= LilForward;
+				end if;
+			when StationEnd =>
+				count_reset <= '1';
+				motor_l_reset <= '1';
+				motor_l_direction <= '0';
+				motor_r_reset <= '1';
+				motor_r_direction <= '0';
+				MazePoint <= '1';
+				if (MazeTurn = "111") then
+					new_state <= Turn180;
+					new_checkpoint <= not(checkpoint);
+				else
+					new_state <= StationEnd;
+					new_checkpoint <= checkpoint;
 				end if;
 			when LilForward =>
 				count_reset <= '1';
@@ -179,8 +196,6 @@ begin
 						new_state <= Left90;
 					elsif (MazeTurn = "001") then
 						new_state <= Right90;
-					--elsif (MazeTurn = "111") then
-						--new_state <= Turn180;
 					else
 						new_state <= forward;
 					end if;
@@ -225,7 +240,7 @@ begin
 				if (sensor_l='0') or (sensor_m='0') or (sensor_r='0') then 
 					new_state <= reset_state;
 				else
-					new_state <= Right90;
+					new_state <= Turn180;
 				end if;
 		end case;
 	end process;
