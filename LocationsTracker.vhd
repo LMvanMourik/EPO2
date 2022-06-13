@@ -33,7 +33,7 @@ begin
 		end if;
 	end process;
 
-	process(state, data_ready, data_in, Turn, MazePoint)
+	process(state, data_ready, data_in, Turn, MazePoint,MazeHold)
 	begin
 		case state is
 			when Data1 =>
