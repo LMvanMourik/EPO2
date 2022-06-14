@@ -44,7 +44,7 @@ begin
 		end if;
 	end process;
 	
-	process(state,count_in,sensor_l,sensor_m,sensor_r,checkpoint, MazeTurn)
+	process(state,count_in,sensor_l,sensor_m,sensor_r,checkpoint,MazeTurn)
 	begin
 		case state is
 			when reset_state =>
@@ -197,7 +197,7 @@ begin
 					elsif (MazeTurn = "001") then
 						new_state <= Right90;
 					else
-						new_state <= forward;
+						new_state <= reset_state;
 					end if;
 				else
 					new_state <= LilForward;

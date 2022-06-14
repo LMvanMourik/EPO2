@@ -12,7 +12,7 @@ entity robot is
 		motor_l_pwm     : out   std_logic;
 		motor_r_pwm     : out   std_logic;
 
-		mine_sensor	: in std_logic;
+		--mine_sensor	: in std_logic;
 		
 		rx: in std_logic;
 		tx: out std_logic;
@@ -88,7 +88,7 @@ Architecture structural of robot is
     	);
 	end component uart;
 
-	component LocationsTracker is
+	component TurnChecker is
 		port(	clk:	in std_logic;
 				reset:	in std_logic;
 				data_in:	in std_logic_vector (7 downto 0); --out from uatr
@@ -96,7 +96,7 @@ Architecture structural of robot is
 				MazeTurn:	out std_logic_vector (2 downto 0);
 				MazePoint:	in std_logic
 		);
-	end component LocationsTracker;
+	end component TurnChecker;
 	
 	signal sensor_l, sensor_m, sensor_r, count_reset, MazePoint, data_ready, buffer_empty: std_logic;
 	--signal read_data, write_data: std_logic; --maybe comment out
@@ -154,7 +154,7 @@ begin
 			data_out => data,
 			data_ready => data_ready );
 
-	Locs: LocationsTracker port map( clk => clk, 
+	Turns: TurnChecker port map( clk => clk, 
 			reset => reset,
 			data_in => data,
 			data_ready => data_ready,
